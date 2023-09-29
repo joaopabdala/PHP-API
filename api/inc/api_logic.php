@@ -144,8 +144,9 @@ class api_logic{
 
         $results = $db->EXE_QUERY("
             SELECT id_cliente FROM clientes
-            WHERE 
-            nome = :nome OR email = :email
+            WHERE 1
+            AND (nome = :nome OR email = :email) 
+            AND deleted_at IS NULL
         ", $params);
         if(count($results) != 0){
             return $this->error_response('There is already another client with the same name or email.');
@@ -189,6 +190,25 @@ class api_logic{
             'results' => $results
             ];
 
+    }
+
+    public function get_product(){
+        $sql = "SELECT * FROM produtos WHERE 1 ";
+
+        if(key_exists('id', $this->params)){
+            if(filter_var($this->params['id'],FILTER_VALIDATE_INT)){
+                $sql .= "AND id_produto = ". intval($this->params['id']);
+            }
+        } else {
+            return $this->error_response("ID product not specified");
+        }
+        $db = new database();
+        $results = $db->EXE_QUERY($sql);
+        return[
+            'status' => 'SUCCESS',
+            'message' => '',
+            'results' => $results
+            ];
     }
     public function get_all_active_products(){
         $db = new database();
@@ -261,6 +281,31 @@ class api_logic{
             'message' => 'New product added with success',
             'results' =>[]
             ];
+    }
+
+    public function delete_product(){
+
+        if(
+            !isset($this->params['id']) 
+        ){
+            return $this->error_response('Insufficient product data.');
+        }
+
+        $db = new database();
+        $params = [
+            ':id_produto' => $this->params['id'],
+        ];
+        
+
+        $db->EXE_NON_QUERY("UPDATE produtos SET deleted_at = NOW() WHERE id_produto = :id_produto
+            " , $params);
+        return [
+            'status' => 'SUCCESS',
+            'message' => 'product deleted with success',
+            'results' =>[]
+            ];
+
+
     }
 }
 

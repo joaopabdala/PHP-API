@@ -3,7 +3,7 @@
 require_once('inc/config.php');
 require_once('inc/api_functions.php');
 
-$results = api_request('get_all_products', 'GET');
+$results = api_request('get_all_active_products', 'GET');
 if ($results['data']['status'] == 'SUCCESS') {
     $produtos = $results['data']['results'];
 } else {
@@ -49,6 +49,7 @@ if ($results['data']['status'] == 'SUCCESS') {
                         <tr>
                             <th>Produto</th>
                             <th class="w-50 text-end">Quantidade</th>
+                            <th class="w-50 text-end"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,6 +58,8 @@ if ($results['data']['status'] == 'SUCCESS') {
                             <tr>
                                 <td class="w-50"><?= $produto['produto'] ?></td>
                                 <td class="text-end"><?= $produto['quantidade'] ?></td>
+                                <td><a href="produtos_delete.php?id=<?= $produto['id_produto']?>">Delete</a></td>
+
                             </tr>
                         <?php endforeach ?>
                     </tbody>
