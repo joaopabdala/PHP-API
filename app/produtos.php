@@ -56,7 +56,11 @@ if ($results['data']['status'] == 'SUCCESS') {
 
                         <?php foreach ($produtos as $produto) : ?>
                             <tr>
-                                <td class="w-50"><?= $produto['produto'] ?></td>
+                                <td class="w-50">
+                                <a href="produtos_edit.php?id=<?= $produto['id_produto'] ?>">&#9998;</a>
+
+                                    <?= $produto['produto'] ?>
+                                </td>
                                 <td class="text-end"><?= $produto['quantidade'] ?></td>
                                 <td><a href="produtos_delete.php?id=<?= $produto['id_produto']?>">Delete</a></td>
 

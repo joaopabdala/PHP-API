@@ -30,6 +30,20 @@ class api_logic{
         ];
     }
 
+    public function get_totals(){
+        $db = new database();
+        $sql = "SELECT 'Clientes', COUNT(*) Total FROM clientes WHERE deleted_at IS NULL
+        UNION ALL 
+        SELECT 'Produtos', COUNT(*) Total FROM produtos WHERE deleted_at IS NULL";
+
+        $results = $db->EXE_QUERY($sql);
+        return [
+            'status' => 'SUCCESS',
+            'message' => '',
+            'results' => $results
+        ];
+    }
+
     // public function get_all_clients(){
     //     $sql = "SELECT * FROM clientes WHERE 1 ";
 
@@ -100,32 +114,6 @@ class api_logic{
             'results' => $results
             ];
     }
-
-    public function delete_client(){
-
-        if(
-            !isset($this->params['id']) 
-        ){
-            return $this->error_response('Insufficient client data.');
-        }
-
-        $db = new database();
-        $params = [
-            ':id_cliente' => $this->params['id'],
-        ];
-        
-
-        $db->EXE_NON_QUERY("UPDATE clientes SET deleted_at = NOW() WHERE id_cliente = :id_cliente
-            " , $params);
-        return [
-            'status' => 'SUCCESS',
-            'message' => 'Client deleted with success',
-            'results' =>[]
-            ];
-
-
-    }
-
     public function create_new_client(){
 
         if(
@@ -175,6 +163,85 @@ class api_logic{
             'results' =>[]
             ];
     }
+    
+    public function delete_client(){
+
+        if(
+            !isset($this->params['id']) 
+        ){
+            return $this->error_response('Insufficient client data.');
+        }
+
+        $db = new database();
+        $params = [
+            ':id_cliente' => $this->params['id'],
+        ];
+        
+
+        $db->EXE_NON_QUERY("UPDATE clientes SET deleted_at = NOW() WHERE id_cliente = :id_cliente
+            " , $params);
+        return [
+            'status' => 'SUCCESS',
+            'message' => 'Client deleted with success',
+            'results' =>[]
+            ];
+
+
+    }
+
+    public function update_client(){
+        if(
+            !isset($this->params['id_cliente']) ||
+            !isset($this->params['nome']) ||
+            !isset($this->params['email']) ||
+            !isset($this->params['telefone'])
+        ){
+            return $this->error_response('Insufficient client data.');
+        }
+
+        $db = new database();
+        $params = [
+            ':id_cliente' => $this->params['id_cliente'],
+            ':nome' => $this->params['nome'],
+            ':email' => $this->params['email'],
+        ];
+
+        $results = $db->EXE_QUERY("
+            SELECT id_cliente FROM clientes
+            WHERE 1
+            AND (nome = :nome OR email = :email) 
+            AND deleted_at IS NULL
+            AND id_cliente <> :id_cliente
+        ", $params);
+        if(count($results) != 0){
+            return $this->error_response('There is already another client with the same name or email.');
+        }
+
+
+        $params = [
+            ':id_cliente' => $this->params['id_cliente'],
+            ':nome' => $this->params['nome'],
+            ':email' => $this->params['email'],
+            ':telefone' => $this->params['telefone'],
+        ];
+        
+
+        $db->EXE_NON_QUERY("UPDATE clientes SET
+            nome = :nome,
+            email = :email,
+            telefone = :telefone,
+            updated_at = NOW()
+            WHERE id_cliente = :id_cliente
+        " , $params);
+        return [
+            'status' => 'SUCCESS',
+            'message' => 'Client updated with success',
+            'results' =>[]
+            ];
+      
+    }
+
+    
 
 
     ///PRODUTOS
@@ -256,6 +323,7 @@ class api_logic{
         $results = $db->EXE_QUERY("
             SELECT id_produto FROM produtos
             WHERE produto = :produto
+            AND deleted_at IS NULL
         ", $params);
         if(count($results) != 0){
             return $this->error_response('There is already another product with the same name');
@@ -306,6 +374,52 @@ class api_logic{
             ];
 
 
+    }
+
+    public function update_product(){
+        if(
+            !isset($this->params['id_produto']) ||
+            !isset($this->params['produto']) ||
+            !isset($this->params['quantidade'])
+            
+        ){
+            return $this->error_response('Insufficient product data.');
+        }
+
+        $db = new database();
+        $params = [
+            ':id_produto' => $this->params['id_produto'],
+            ':produto' => $this->params['produto'],
+        ];
+
+        $results = $db->EXE_QUERY("
+            SELECT id_produto FROM produtos
+            WHERE produto = :produto
+            AND deleted_at IS NULL
+            AND id_produto <> :id_produto
+        ", $params);
+        if(count($results) != 0){
+            return $this->error_response('There is already another product with the same name');
+        }
+
+
+        $params = [
+            ':id_produto' => $this->params['id_produto'],
+            ':produto' => $this->params['produto'],
+            ':quantidade' => $this->params['quantidade']
+        ];
+        
+
+        $db->EXE_NON_QUERY("UPDATE produtos SET
+            produto = :produto,
+            quantidade = :quantidade
+            WHERE id_produto = :id_produto
+        " , $params);
+        return [
+            'status' => 'SUCCESS',
+            'message' => 'Product updated with success',
+            'results' =>[]
+            ];
     }
 }
 

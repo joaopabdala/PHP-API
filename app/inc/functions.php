@@ -1,5 +1,5 @@
 <?php 
-function prinData($data, $die = true){
+function printData($data, $die = true){
     echo '<pre>';
     if(is_object($data) || is_array($data)){
         print_r($data);

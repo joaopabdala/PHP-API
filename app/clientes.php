@@ -57,10 +57,13 @@ if ($results['data']['status'] == 'SUCCESS') {
 
                             <?php foreach ($clientes as $cliente) : ?>
                                 <tr>
-                                    <td><?= $cliente['nome'] ?></td>
+                                    <td>
+                                        <a href="clientes_edit.php?id=<?= $cliente['id_cliente'] ?>">&#9998;</a>
+                                         <?= $cliente['nome'] ?>
+                                    </td>
                                     <td><?= $cliente['email'] ?></td>
                                     <td><?= $cliente['telefone'] ?></td>
-                                    <td><a href="clientes_delete.php?id=<?= $cliente['id_cliente']?>">Delete</a></td>
+                                    <td><a href="clientes_delete.php?id=<?= $cliente['id_cliente']?>">&#128465;</a></td>
                                 </tr>
                             <?php endforeach ?>
                         </tbody>
